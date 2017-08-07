@@ -1,0 +1,24 @@
+<div class="page admin-courses-list-screen courses-groups">
+  <header>
+    <h2>
+      <a class="g-link blue" routerLink="/coach/courses">Все курсы</a>
+      <span>{{group.title}}</span>
+    </h2>
+  </header>
+
+  <section class="content">
+    <div class="g-empty-box" *ngIf="!courses || courses.length == 0">
+      Для добавления существующих курсов в этот пакет<br/>
+      перетащите их с помощью мыши на экране <a class="g-link dot blue" [routerLink]="['/coach/courses']">Все курсы</a>
+    </div>
+
+    <div class="admin-courses" *ngIf="courses?.length">
+      <article class="coach-course-tile g-course-tile"
+               *ngFor="let course of courses"
+               [course]="course">
+      </article>
+    </div>
+  </section>
+
+  <load-more [value]="courses.$pagination" (load)="loadMore($event)"></load-more>
+</div>

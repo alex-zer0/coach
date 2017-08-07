@@ -1,0 +1,45 @@
+<div class="page coach-review-tasks">
+  <header>
+    <h2>Домашние задания</h2>
+    <coach-students-filter></coach-students-filter>
+  </header>
+
+  <div class="g-empty-box" *ngIf="!reviewTasks || reviewTasks.length == 0">
+    Заданий на проверку нет
+  </div>
+
+  <section *ngIf="reviewTasks?.length">
+    <div class="course" *ngFor="let course of reviewTasks">
+      <header>
+        <div class="thumbnail">
+          <img *ngIf="course.courseImage" [src]="course.courseImage" alt=""/>
+          <div class="no-image" *ngIf="!course.courseImage">
+            <i class="fa fa-graduation-cap"></i>
+          </div>
+        </div>
+        {{course.courseTitle}}
+      </header>
+
+      <div class="tasks">
+        <div class="tasks__task" *ngFor="let task of course.tasks">
+          <div class="avatar">
+            <img [src]="'//www.gravatar.com/avatar/' + task.student.gravatar + '?s=40'" width="40" height="40"/>
+          </div>
+          <span class="name">{{task.student.name}}</span>
+          <p class="info" [ngSwitch]="task.reviewType">
+              <span *ngSwitchCase="'QuizReviewTaskType'">
+                Ожидает проверки теста "{{task.title}}"
+              </span>
+            <span *ngSwitchCase="'LessonReviewTaskType'">
+                Домашнее задание на урок "{{task.title}}"
+              </span>
+          </p>
+          <span class="time" [class.warn]="task.isWarnTime">{{task.createdAt | momentAgo}}</span>
+          <a class="g-ctrl btn-default" (click)="goToReview(task)" *ngIf="task.coachId == auth.userSession.user.id">
+            Перейти к проверке
+          </a>
+        </div>
+      </div>
+    </div>
+  </section>
+</div>

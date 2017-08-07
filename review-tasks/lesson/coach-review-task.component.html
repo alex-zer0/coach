@@ -1,0 +1,74 @@
+<div class="page coach-review-task-page">
+    <header>
+        <h2>
+            <a class="g-link blue" (click)="redirectToList()">Все задания</a>
+            <span>{{lessonToReview.courseTitle}}</span>
+        </h2>
+    </header>
+
+    <section>
+        <header>
+            <div class="user-info">
+                <div class="avatar">
+                    <img [attr.alt]="lessonToReview.user.name" height="40" width="40"
+                         [src]="'//www.gravatar.com/avatar/' + lessonToReview.user.gravatar"/>
+                </div>
+                <p>{{lessonToReview.user.name}}</p>
+            </div>
+            <div class="progress-info">
+                <div class="progress">
+                    <span>Прохождение курса ({{lessonToReview.doneStepsCount}} из {{lessonToReview.stepsCount}})</span>
+                    <div class="progress__bar">
+                        <div class="progress__bar__completed" [style.width]="lessonToReview.progressInPercent + '%'"></div>
+                    </div>
+                </div>
+                <div class="points">
+                    {{lessonToReview.user.points || 0}} баллов
+                </div>
+            </div>
+        </header>
+
+        <article>
+            <span>Урок</span>
+            <div>{{lessonToReview.lessonTitle}}</div>
+
+            <span>Задание</span>
+            <div>
+                <mobiledoc-viewer [mobiledoc]="lessonToReview.task"></mobiledoc-viewer>
+            </div>
+
+            <span>Ответ ученика</span>
+            <div>
+                {{lessonToReview.answer}}
+            </div>
+        </article>
+
+        <footer *ngIf="!isVerified">
+            <span>{{action == 'Incorrect' ? 'ваш комментарий' : 'ваша оценка'}}:</span>
+            <div class="g-row g-middle" *ngIf="action != 'Incorrect'">
+                <button class="g-ctrl btn-green with-adjacent" [class.loading]="isLoading" (click)="completeReview(true)">
+                    Верно
+                </button>
+                <button class="g-ctrl btn-red" (click)="completeReview(false)" [disabled]="action == 'Correct'">
+                    Неверно
+                </button>
+            </div>
+            <div class="comment-form" *ngIf="action == 'Incorrect'">
+                <textarea class="g-ctrl width-max" [(ngModel)]="comment" (keypress)="keypress($event)"></textarea>
+                <footer>
+                    <span *ngIf="!isLoading">Ctrl + Enter</span>
+                    <button class="g-ctrl btn-red" [class.loading]="isLoading" [disabled]="!comment"
+                            (click)="completeReview(false)">Вернуть на доработку</button>
+                </footer>
+            </div>
+        </footer>
+        <footer class="result-footer" *ngIf="isVerified">
+            <span [class.incorrect]="action == 'Incorrect'">
+                {{action == 'Correct' ? 'Задание проверено!' : 'Возвращено на доработку'}}
+            </span>
+            <a class="g-link blue" (click)="redirectToList()">
+                назад ко всем заданиям (<sec-timer [seconds]="3" (onFinish)="redirectToList()"></sec-timer> сек...)
+            </a>
+        </footer>
+    </section>
+</div>

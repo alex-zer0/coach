@@ -1,0 +1,27 @@
+<div class="row-image">
+    <div class="no-image" *ngIf="!course.image">
+        <i class="fa fa-graduation-cap"></i>
+    </div>
+    <div class="course-image" *ngIf="course.image">
+        <img [src]="course.image" [alt]="course.name"/>
+    </div>
+    <div class="labels">
+        <span class="g-label green" *ngIf="course.price">{{course.price | price}}</span>
+        <span class="g-label orange" *ngIf="!course.price">Бесплатно</span>
+        <span class="g-label orange" *ngIf="course.price && course.hasFreeSteps">Бесплатные уроки</span>
+    </div>
+</div>
+<header>{{course.name}}</header>
+<footer>
+    <span>{{course.studentCount || 'Нет'}} учеников</span>
+    <div class="actions">
+        <a class="g-link blue" #menuTrigger>
+            <i class="fa fa-ellipsis-v"></i>
+        </a>
+        <tether-drop [trigger]="menuTrigger" [position]="'bottom right'">
+            <ul>
+                <li><a [routerLink]="['/coach/courses', course.id, 'preview']">Превью</a></li>
+            </ul>
+        </tether-drop>
+    </div>
+</footer>

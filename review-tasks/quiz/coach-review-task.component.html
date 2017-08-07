@@ -1,0 +1,129 @@
+<div class="page coach-review-task-page">
+    <header>
+        <h2>
+            <a class="g-link blue" (click)="redirectToList()">Все задания</a>
+            <span>{{quizAttempt.courseTitle}}</span>
+        </h2>
+    </header>
+
+    <section>
+        <header>
+            <div class="user-info">
+                <div class="avatar">
+                    <img [attr.alt]="quizAttempt.user.name" height="40" width="40"
+                         [src]="'//www.gravatar.com/avatar/' + quizAttempt.user.gravatar"/>
+                </div>
+                <p>{{quizAttempt.user.name}}</p>
+            </div>
+            <div class="progress-info">
+                <div class="progress">
+                    <span>Прохождение курса ({{quizAttempt.doneStepsCount}} из {{quizAttempt.stepsCount}})</span>
+                    <div class="progress__bar">
+                        <div class="progress__bar__completed" [style.width]="quizAttempt.progressInPercent + '%'"></div>
+                    </div>
+                </div>
+                <div class="points">
+                    {{quizAttempt.user.points || 0}} баллов
+                </div>
+                <div class="date-info">
+                    <span>Дата прохождения</span>
+                    <p>{{quizAttempt.createdAt | moment:'DD MMMM, YYYY'}}</p>
+                </div>
+                <div class="date-info">
+                    <span>Время прохождения</span>
+                    <p>{{totalTimeToSolve}}</p>
+                </div>
+            </div>
+        </header>
+
+        <article>
+            <span>Тест</span>
+            <div>{{quizAttempt.title}}</div>
+
+            <div class="question" *ngFor="let question of quizAttempt.questions">
+                <span>Задание</span>
+                <p>
+                    <mobiledoc-viewer [mobiledoc]="question.question"></mobiledoc-viewer>
+                </p>
+
+                <span>Ответ</span>
+                <div [ngSwitch]="question.answerType">
+                    <div class="select-answers" *ngSwitchCase="'SelectAnswerType'">
+                        <ul class="g-unstyled">
+                            <li *ngFor="let option of question.options"
+                                [class.correct]="isCorrectOption(question, option)"
+                                [class.incorrect]="isIncorrectOption(question, option)">
+                                <div class="checkbox">
+                                    <i class="fa fa-times" *ngIf="isIncorrectOption(question, option)"></i>
+                                    <i class="fa fa-check" *ngIf="isCorrectOption(question, option)"></i>
+                                </div>
+                                <label>{{option.answer}}</label>
+                            </li>
+                        </ul>
+                    </div>
+                    <div *ngSwitchCase="'GiveTextAnswerType'">
+                        {{question.answer.text}}
+                    </div>
+                </div>
+
+                <footer>
+                    <div class="g-row with-gutter g-middle">
+                        <div class="g-col" *ngIf="question.answer.status == 'NotReviewed'">
+                            <button class="g-ctrl btn-green"
+                                    (click)="setStatus(question.answer, 'Correct')">Верно</button>
+                        </div>
+                        <div class="g-col" *ngIf="question.answer.status == 'NotReviewed'">
+                            <button class="g-ctrl btn-red"
+                                    (click)="setStatus(question.answer, 'Incorrect')">Неверно</button>
+                        </div>
+                        <p class="g-col correct-answer" *ngIf="question.answer.status == 'Correct'">
+                            <i class="fa fa-check-circle"></i>
+                            Ответ верный
+                        </p>
+                        <p class="g-col incorrect-answer" *ngIf="question.answer.status == 'Incorrect'">
+                            <i class="fa fa-times-circle"></i>
+                            Ответ неверный
+                        </p>
+                        <div class="g-col" *ngIf="question.answer.status != 'NotReviewed'">
+                            <a class="g-link blue dot" (click)="setStatus(question.answer, 'NotReviewed')">изменить</a>
+                        </div>
+                        <span class="g-col">
+                            {{question.answer.timeToSolve.value | duration}}
+                        </span>
+                    </div>
+                </footer>
+            </div>
+        </article>
+
+        <footer *ngIf="!isVerified">
+            <span>{{action == 'Incorrect' ? 'ваш комментарий' : 'ваша оценка'}}:</span>
+            <div class="g-row g-middle" *ngIf="action != 'Incorrect'">
+                <button class="g-ctrl btn-green with-adjacent" [class.loading]="isLoading"
+                        [disabled]="!checkReview()" (click)="completeReview(true)">
+                    Верно
+                </button>
+                <button class="g-ctrl btn-red" (click)="completeReview(false)"
+                        [disabled]="action == 'Correct' || !checkReview()">
+                    Неверно
+                </button>
+            </div>
+            <div class="comment-form" *ngIf="action == 'Incorrect'">
+                <textarea class="g-ctrl width-max" [(ngModel)]="comment" (keypress)="keypress($event)"></textarea>
+                <footer>
+                    <span *ngIf="!isLoading">Ctrl + Enter</span>
+                    <button class="g-ctrl btn-red" [class.loading]="isLoading" [disabled]="!comment"
+                            (click)="completeReview(false)">Вернуть на доработку</button>
+                </footer>
+            </div>
+        </footer>
+
+        <footer class="result-footer" *ngIf="isVerified">
+            <span [class.incorrect]="action == 'Incorrect'">
+                {{action == 'Correct' ? 'Задание проверено!' : 'Возвращено на доработку'}}
+            </span>
+            <a class="g-link blue" (click)="redirectToList()">
+                назад ко всем заданиям (<sec-timer [seconds]="3" (onFinish)="redirectToList()"></sec-timer> сек...)
+            </a>
+        </footer>
+    </section>
+</div>
